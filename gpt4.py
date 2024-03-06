@@ -1,21 +1,16 @@
 import openai
 import sys
 import os
-from rich import print as rich_print  # For enhanced formatting
+from rich.console import Console
+from rich.markdown import Markdown 
 
 def main():
-
-    if len(sys.argv) < 2:
-        rich_print("[bold red]Please provide a question.[/bold red]")
-        return
 
     question = sys.argv[1]
     try:
         openai.api_key = os.getenv('OPENAI_API_KEY')
         client = openai.OpenAI()
-        if not openai.api_key:
-            rich_print("[bold red]API key not found. Please set your OPENAI_API_KEY environment variable.[/bold red]")
-            return
+        console = Console()
 
         response = client.chat.completions.create(
             model="gpt-4-0125-preview",
@@ -25,9 +20,15 @@ def main():
             ]
         )
         answer = response.choices[0].message.content
-        rich_print(f"[bold green]Answer:[/bold green] {answer}")
+        if answer is not None:
+            console.print("")
+            console.print(Markdown(answer))
+        else: 
+            console.print("no answer received")
+
+
     except Exception as e:
-        rich_print(f"[bold red]An error occurred:[/bold red] {e}")
+        print(f"error occurred {e}")
 
 if __name__ == "__main__":
     main()
